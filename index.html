@@ -265,12 +265,9 @@
   <!-- ===== LOGIN ===== -->
   <div id="view-login">
     <p class="login-title">Consulta tus<br/>calificaciones</p>
-    <p class="login-sub">Ingresa con tu nombre y código de estudiante</p>
+    <p class="login-sub">Ingresa con tu número de documento (sin puntos, comas, espacios o caracteres alfabéticos)</p>
 
-    <div class="field">
-      <label for="inp-nombre">Nombre completo</label>
-      <input id="inp-nombre" type="text" placeholder="Ej: María García" autocomplete="off" />
-    </div>
+
     <div class="field">
       <label for="inp-codigo">Número de Documento</label>
       <input id="inp-codigo" type="text" placeholder="Ej: 1234567890" autocomplete="off" />
@@ -384,12 +381,11 @@ function parseCSV(text) {
 
 // ---- login ----
 function doLogin() {
-  const nombre = document.getElementById('inp-nombre').value.trim();
   const codigo = document.getElementById('inp-codigo').value.trim();
   const errEl  = document.getElementById('login-error');
   errEl.style.display = 'none';
 
-  if (!nombre || !codigo) { errEl.textContent = 'Completa ambos campos.'; errEl.style.display = 'block'; return; }
+  if (!codigo) { errEl.textContent = 'Completa ambos campos.'; errEl.style.display = 'block'; return; }
 
   const btn = document.getElementById('btn-login');
   btn.innerHTML = '<span class="spinner"></span>Verificando...';
@@ -401,7 +397,7 @@ function doLogin() {
 
   if (!url) {
     // modo demo para que el docente pruebe la página antes de configurar
-    loadDemoData(nombre, codigo);
+    loadDemoData(codigo);
     return;
   }
 
@@ -421,7 +417,7 @@ function doLogin() {
     .catch(err => {
       btn.innerHTML = 'Ingresar'; btn.disabled = false;
       if (err.message === 'not_found') {
-        errEl.textContent = 'Nombre o código incorrecto. Verifica tus datos.';
+        errEl.textContent = 'Número no encontrado. Por favor verifica tus datos.';
       } else {
         errEl.textContent = 'No se pudo conectar con la hoja de cálculo. Verifica la URL en la configuración.';
       }
