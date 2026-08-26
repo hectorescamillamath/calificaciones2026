@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal de Calificaciones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #181c27;
+      --card: #1e2333;
+      --border: rgba(255,255,255,0.08);
+      --border-glow: rgba(99,160,255,0.35);
+      --text: #e8ecf4;
+      --muted: #7a8399;
+      --accent: #63a0ff;
+      --accent-dim: rgba(99,160,255,0.12);
+      --green: #4ade80;
+      --green-dim: rgba(74,222,128,0.12);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.12);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,0.12);
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- HEADER ---------- */
+    header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--accent); }
+    #btn-logout {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+    #btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+    /* ---------- MAIN ---------- */
+    main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; }
+
+    /* ---------- LOGIN ---------- */
+    #view-login {
+      width: 100%;
+      max-width: 420px;
+    }
+    .login-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+    .login-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    label { font-size: 0.8rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    input[type="text"], input[type="password"], input[type="number"] {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+    #btn-login {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.85rem;
+      background: var(--accent);
+      color: #0f1117;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #btn-login:hover { opacity: 0.88; }
+    #login-error {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--red-dim);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: var(--radius-sm);
+      color: var(--red);
+      font-size: 0.88rem;
+      display: none;
+    }
+    .config-note {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--accent-dim);
+      border: 1px solid rgba(99,160,255,0.2);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .config-note strong { color: var(--accent); }
+
+    /* ---------- DASHBOARD ---------- */
+    #view-dashboard { display: none; width: 100%; max-width: 860px; }
+    .dash-header { margin-bottom: 2rem; }
+    .student-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.2rem;
+    }
+    .student-code { color: var(--muted); font-size: 0.88rem; }
+
+    /* stat cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+    .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 2rem; font-weight: 600; line-height: 1; }
+    .stat-value.green { color: var(--green); }
+    .stat-value.amber { color: var(--amber); }
+    .stat-value.red { color: var(--red); }
+    .stat-value.accent { color: var(--accent); }
+
+    /* activities table */
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th {
+      padding: 0.85rem 1.25rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    td {
+      padding: 0.9rem 1.25rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+    .badge-green { background: var(--green-dim); color: var(--green); }
+    .badge-amber { background: var(--amber-dim); color: var(--amber); }
+    .badge-red { background: var(--red-dim); color: var(--red); }
+    .badge-muted { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+    .loading-row td { text-align: center; color: var(--muted); padding: 2.5rem; font-size: 0.9rem; }
+
+    /* progress bar */
+    .prog-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 0.35rem;
+    }
+    .prog-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      text-align: center;
+      padding: 1.25rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ---------- LOADING SPINNER ---------- */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      header { padding: 1rem; }
+      th, td { padding: 0.7rem 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Portal<span>.</span>Calificaciones</div>
+  <button id="btn-logout" onclick="logout()">Cerrar sesión</button>
+</header>
+
+<main>
+
+  <!-- ===== LOGIN ===== -->
+  <div id="view-login">
+    <p class="login-title">Consulta tus<br/>calificaciones</p>
+    <p class="login-sub">Ingresa tu número de documento para ver tus calificaciones</p>
+
+    <div class="field">
+      <label for="inp-codigo">Número de documento</label>
+      <input id="inp-codigo" type="text" placeholder="Ej: 1234567890" autocomplete="off" />
+    </div>
+
+    <button id="btn-login" onclick="doLogin()">Ingresar</button>
+    <div id="login-error">Nombre o código incorrecto. Verifica tus datos.</div>
+
+    <div class="config-note">
+      <strong>⚙ Para el docente:</strong> edita la variable <code>SHEET_CSV_URL</code>
+      en este archivo con la URL pública CSV de tu Google Sheets.
+      <a href="https://support.google.com/docs/answer/37579" target="_blank" rel="noopener" style="color:var(--accent)">Ver instrucciones ↗</a>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div id="view-dashboard">
+    <div class="dash-header">
+      <p class="student-name" id="dash-name">Estudiante</p>
+      <p class="student-code" id="dash-code">Código: —</p>
+    </div>
+
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Promedio general</div>
+        <div class="stat-value accent" id="stat-avg">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Actividades</div>
+        <div class="stat-value accent" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Aprobadas</div>
+        <div class="stat-value green" id="stat-pass">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Por mejorar</div>
+        <div class="stat-value red" id="stat-fail">—</div>
+      </div>
+    </div>
+
+    <p class="section-title">Detalle de actividades</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Actividad</th>
+            <th>Nota</th>
+            <th>Progreso</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-activities">
+          <tr class="loading-row"><td colspan="4"><span class="spinner"></span>Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<footer>Portal de Calificaciones &mdash; Acceso privado por estudiante</footer>
+
+<script>
+/*
+ * =====================================================================
+ *  CONFIGURACIÓN — edita estas variables antes de subir a GitHub Pages
+ * =====================================================================
+ *
+ *  SHEET_CSV_URL:
+ *    1. Abre tu Google Sheets
+ *    2. Archivo → Compartir → Publicar en la web
+ *    3. Selecciona la hoja y formato "Valores separados por comas (.csv)"
+ *    4. Copia el enlace y pégalo aquí
+ *
+ *  Estructura esperada de la hoja (fila 1 = encabezados):
+ *    Columna A: Nombre completo del estudiante
+ *    Columna B: Código numérico
+ *    Columna C en adelante: Una columna por actividad (encabezado = nombre de la actividad)
+ *
+ *  NOTA_MINIMA: calificación mínima para considerar "aprobada" una actividad
+ *  NOTA_MAXIMA: valor máximo posible (para la barra de progreso)
+ * =====================================================================
+ */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvzavsmvrTTnAaGea87csi-xitvwwN909MZKEkwgmT83xHygTmFNIXRQudrFGuEos-jQ/exec';
+const NOTA_MINIMA = 3.0;  // escala colombiana: 3.0 de 5.0
+const NOTA_MAXIMA = 5.0;
+
+// ---- utilidades ----
+function normalize(s) {
+  return String(s).trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function gradeColor(n) {
+  if (n === null) return 'muted';
+  if (n >= NOTA_MINIMA) return n >= 4.0 ? 'green' : 'amber';
+  return 'red';
+}
+
+// ---- login ----
+function doLogin() {
+  const codigo = document.getElementById('inp-codigo').value.trim();
+  const errEl  = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!codigo) { errEl.textContent = 'Ingresa tu número de documento.'; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('btn-login');
+  btn.innerHTML = '<span class="spinner"></span>Verificando...';
+  btn.disabled = true;
+
+  fetch(`${APPS_SCRIPT_URL}?doc=${encodeURIComponent(codigo)}`)
+    .then(r => { if (!r.ok) throw new Error('fetch_error'); return r.json(); })
+    .then(res => {
+      console.log('[Portal] Respuesta del script:', res);
+      if (res.error === 'not_found') throw new Error('not_found');
+      if (res.error) throw new Error('script_error');
+      if (!res.data || !res.headers) throw new Error('script_error');
+
+      // Convertir respuesta a formato que espera showDashboard
+      const row = { _headers: res.headers, ...res.data };
+      showDashboard(row);
+    })
+    .catch(err => {
+      btn.innerHTML = 'Ingresar'; btn.disabled = false;
+      if (err.message === 'not_found') {
+        errEl.textContent = 'Documento no encontrado. Verifica el número ingresado.';
+      } else {
+        errEl.textContent = 'Error al conectar. Verifica que el script esté desplegado correctamente.';
+        console.error('[Portal] Error:', err);
+      }
+      errEl.style.display = 'block';
+    });
+}
+
+// ---- demo data ----
+function loadDemoData(codigo) {
+  const headers = ['Nombre', 'Documento', 'Taller 1', 'Taller 2', 'Parcial 1', 'Proyecto', 'Parcial 2', 'Final'];
+  const demo = {};
+  headers.forEach((h, i) => {
+    if (i === 0) demo[h] = 'Estudiante Demo';
+    else if (i === 1) demo[h] = codigo || '0000';
+    else demo[h] = (3 + Math.random() * 2).toFixed(1);
+  });
+  demo._headers = headers;
+  showDashboard(demo, true);
+}
+
+// ---- dashboard ----
+function showDashboard(row, isDemo = false) {
+  const headers = row._headers;
+  const nameKey = headers.find(h => /nombre|name/i.test(normalize(h))) || headers[0];
+  const codeKey = headers.find(h => /doc|cedula|documento|id|cod|code/i.test(normalize(h)) && h !== nameKey) || headers[1];
+  const actHeaders = headers.filter(h => h !== nameKey && h !== codeKey && h !== '_headers');
+  console.log('[Portal] Nombre:', nameKey, '| Documento:', codeKey, '| Actividades:', actHeaders);
+
+  document.getElementById('view-login').style.display    = 'none';
+  document.getElementById('view-dashboard').style.display = 'block';
+  document.getElementById('btn-logout').style.display    = 'block';
+
+  document.getElementById('dash-name').textContent = row[nameKey];
+  document.getElementById('dash-code').textContent = `Documento: ${row[codeKey]}${isDemo ? ' (modo demo)' : ''}`;
+
+  const grades = actHeaders.map(h => {
+    const raw = row[h];
+    const n = parseFloat(raw);
+    return isNaN(n) ? null : n;
+  }).filter(n => n !== null);
+
+  const avg    = grades.length ? grades.reduce((a,b) => a+b, 0) / grades.length : null;
+  const passed = grades.filter(n => n >= NOTA_MINIMA).length;
+  const failed = grades.filter(n => n < NOTA_MINIMA).length;
+
+  document.getElementById('stat-avg').textContent   = avg !== null ? avg.toFixed(2) : '—';
+  document.getElementById('stat-avg').className     = `stat-value ${gradeColor(avg)}`;
+  document.getElementById('stat-total').textContent = actHeaders.length;
+  document.getElementById('stat-pass').textContent  = passed;
+  document.getElementById('stat-fail').textContent  = failed;
+
+  const tbody = document.getElementById('tbody-activities');
+  tbody.innerHTML = '';
+
+  actHeaders.forEach(h => {
+    const raw = row[h];
+    const n   = parseFloat(raw);
+    const valid = !isNaN(n);
+    const color = gradeColor(valid ? n : null);
+    const pct   = valid ? Math.min(100, (n / NOTA_MAXIMA) * 100).toFixed(1) : 0;
+
+    const barColor = { green: '#4ade80', amber: '#fbbf24', red: '#f87171', muted: '#4b5563' }[color];
+    const label = !valid ? '—' : (n >= NOTA_MINIMA ? 'Aprobado' : 'Por mejorar');
+    const badgeCls = !valid ? 'badge-muted' : (n >= NOTA_MINIMA ? 'badge-green' : 'badge-red');
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${h}</td>
+        <td style="font-weight:600; color:var(--${color === 'muted' ? 'muted' : color})">${valid ? n.toFixed(1) : '—'}</td>
+        <td style="min-width:120px">
+          <div style="font-size:0.75rem;color:var(--muted)">${valid ? pct + '%' : '—'}</div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${barColor}"></div></div>
+        </td>
+        <td><span class="badge ${badgeCls}">${label}</span></td>
+      </tr>`;
+  });
+
+  if (!actHeaders.length) {
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="4">No se encontraron actividades en la hoja.</td></tr>';
+  }
+}
+
+// ---- logout ----
+function logout() {
+  document.getElementById('view-dashboard').style.display = 'none';
+  document.getElementById('view-login').style.display     = 'block';
+  document.getElementById('btn-logout').style.display     = 'none';
+  document.getElementById('inp-codigo').value = '';
+  document.getElementById('btn-login').innerHTML = 'Ingresar';
+  document.getElementById('btn-login').disabled  = false;
+}
+
+// enter key
+document.getElementById('inp-codigo').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>
