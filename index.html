@@ -351,7 +351,7 @@
  *  NOTA_MAXIMA: valor máximo posible (para la barra de progreso)
  * =====================================================================
  */
-const SHEET_CSV_URL = 'TU_URL_CSV_AQUI';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTbRgn7z_-qhYOC709ldELk2HIruH4bMwulb3tjo5QY6XDao9R5zCq-oFeUNqg83aPaKV6OybbWp9EB/pub?gid=1352765340&single=true&output=csv';
 const NOTA_MINIMA   = 3.0;   // escala colombiana: 3.0 de 5.0
 const NOTA_MAXIMA   = 5.0;
 
@@ -411,7 +411,7 @@ function doLogin() {
   btn.innerHTML = '<span class="spinner"></span>Verificando...';
   btn.disabled = true;
 
-  const url = SHEET_CSV_URL === 'TU_URL_CSV_AQUI' ? null : SHEET_CSV_URL;
+  const url = SHEET_CSV_URL === 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTbRgn7z_-qhYOC709ldELk2HIruH4bMwulb3tjo5QY6XDao9R5zCq-oFeUNqg83aPaKV6OybbWp9EB/pub?gid=1352765340&single=true&output=csv' ? null : SHEET_CSV_URL;
 
   if (!url) { loadDemoData(codigo); return; }
 
